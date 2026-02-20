@@ -1,9 +1,8 @@
 package org.example.springbootintro.service;
 
+import java.util.List;
 import org.example.springbootintro.dto.BookDto;
 import org.example.springbootintro.dto.CreateBookRequestDto;
-
-import java.util.List;
 
 public interface BookService {
 
