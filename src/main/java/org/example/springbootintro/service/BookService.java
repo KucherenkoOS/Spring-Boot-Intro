@@ -5,7 +5,6 @@ import org.example.springbootintro.dto.BookDto;
 import org.example.springbootintro.dto.CreateBookRequestDto;
 
 public interface BookService {
-
     BookDto createBook(CreateBookRequestDto bookDto);
 
     BookDto getBookById(Long id);

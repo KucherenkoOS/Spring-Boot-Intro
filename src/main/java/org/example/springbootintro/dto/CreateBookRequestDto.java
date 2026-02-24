@@ -9,7 +9,6 @@ import lombok.ToString;
 @Setter
 @ToString
 public class CreateBookRequestDto {
-
     private String title;
     private String author;
     private String isbn;
