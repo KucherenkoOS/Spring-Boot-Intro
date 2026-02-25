@@ -4,8 +4,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.example.springbootintro.exception.EntityNotFoundException;
 import org.example.springbootintro.model.Book;
 import org.springframework.stereotype.Repository;
 
@@ -42,16 +42,12 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
-    public Book findById(Long id) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            Book book = entityManager.find(Book.class, id);
-            if (book == null) {
-                throw new EntityNotFoundException("Book with id " + id + " not found");
-            }
-            return book;
-        } finally {
-            entityManager.close();
+    public Optional<Book> findById(Long id) {
+        try (EntityManager entityManager =
+                     entityManagerFactory.createEntityManager()) {
+            return Optional.ofNullable(
+                    entityManager.find(Book.class, id)
+            );
         }
     }
 }
