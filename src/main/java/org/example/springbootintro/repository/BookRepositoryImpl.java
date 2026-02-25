@@ -36,18 +36,21 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public List<Book> findAll() {
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        try {
             return entityManager.createQuery("from Book", Book.class).getResultList();
+        } finally {
+            entityManager.close();
         }
     }
 
     @Override
     public Optional<Book> findById(Long id) {
-        try (EntityManager entityManager =
-                     entityManagerFactory.createEntityManager()) {
-            return Optional.ofNullable(
-                    entityManager.find(Book.class, id)
-            );
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        try {
+            return Optional.ofNullable(entityManager.find(Book.class, id));
+        } finally {
+            entityManager.close();
         }
     }
 }
