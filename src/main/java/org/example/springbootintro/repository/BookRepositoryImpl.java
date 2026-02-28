@@ -12,45 +12,52 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 @Repository
 public class BookRepositoryImpl implements BookRepository {
+
     private final EntityManagerFactory entityManagerFactory;
 
     @Override
     public Book save(Book book) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
+        EntityTransaction transaction = null;
 
-        try {
+        try (EntityManager entityManager =
+                     entityManagerFactory.createEntityManager()) {
+
+            transaction = entityManager.getTransaction();
             transaction.begin();
+
             entityManager.persist(book);
+
             transaction.commit();
             return book;
+
         } catch (RuntimeException e) {
-            if (transaction.isActive()) {
+            if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
-            throw e;
-        } finally {
-            entityManager.close();
+            throw new RuntimeException(
+                    "Can't save book: " + book, e
+            );
         }
     }
 
     @Override
     public List<Book> findAll() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            return entityManager.createQuery("from Book", Book.class).getResultList();
-        } finally {
-            entityManager.close();
+        try (EntityManager entityManager =
+                     entityManagerFactory.createEntityManager()) {
+
+            return entityManager
+                    .createQuery("from Book", Book.class)
+                    .getResultList();
         }
     }
 
     @Override
     public Optional<Book> findById(Long id) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
-            return Optional.ofNullable(entityManager.find(Book.class, id));
-        } finally {
-            entityManager.close();
+        try (EntityManager entityManager =
+                     entityManagerFactory.createEntityManager()) {
+
+            Book book = entityManager.find(Book.class, id);
+            return Optional.ofNullable(book);
         }
     }
 }
