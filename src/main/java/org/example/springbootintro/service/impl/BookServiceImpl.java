@@ -1,5 +1,6 @@
 package org.example.springbootintro.service.impl;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootintro.dto.BookDto;
@@ -38,5 +39,25 @@ public class BookServiceImpl implements BookService {
                         new EntityNotFoundException("Can't find book by id " + id));
 
         return bookMapper.toDto(book);
+    }
+
+    @Transactional
+    @Override
+    public BookDto update(Long id, CreateBookRequestDto requestDto) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Can't find book by id " + id));
+
+        bookMapper.updateBookFromDto(requestDto, book);
+
+        return bookMapper.toDto(bookRepository.save(book));
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!bookRepository.existsById(id)) {
+            throw new EntityNotFoundException("Can't find book by id " + id);
+        }
+        bookRepository.deleteById(id);
     }
 }
