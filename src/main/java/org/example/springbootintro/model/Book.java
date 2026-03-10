@@ -17,7 +17,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Getter
 @Setter
 @SQLDelete(sql = "UPDATE books SET is_deleted = true WHERE id = ?")
-@SQLRestriction("deleted = false")
+@SQLRestriction("is_deleted = false")
 public class Book {
 
     @Id
