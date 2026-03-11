@@ -1,10 +1,14 @@
 package org.example.springbootintro.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootintro.dto.BookDto;
 import org.example.springbootintro.dto.CreateBookRequestDto;
 import org.example.springbootintro.service.BookService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -22,35 +26,46 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/books")
 @RequiredArgsConstructor
+@Tag(name = "Books management", description = "Endpoints for managing books")
 public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    public Page<BookDto> getAll(@PageableDefault(size = 10, sort = "title") Pageable pageable) {
+    @Operation(summary = "Get all books with pagination and sorting")
+    public Page<BookDto> getAll(
+            @ParameterObject
+            @PageableDefault(size = 10, sort = "title") Pageable pageable) {
         return bookService.getAll(pageable);
     }
 
     @GetMapping("/{id}")
-    public BookDto getBookById(@PathVariable Long id) {
+    @Operation(summary = "Get a book by its id")
+    public BookDto getBookById(@Parameter(description = "Book id", example = "1")
+                                   @PathVariable Long id) {
         return bookService.getBookById(id);
     }
 
     @PostMapping
+    @Operation(summary = "Create a new book")
     @ResponseStatus(HttpStatus.CREATED)
     public BookDto createBook(@RequestBody @Valid CreateBookRequestDto bookDto) {
         return bookService.createBook(bookDto);
     }
 
     @PutMapping("/{id}")
-    public BookDto updateBook(@PathVariable Long id,
+    @Operation(summary = "Update an existing book by id")
+    public BookDto updateBook(@Parameter(description = "Book id", example = "1")
+                              @PathVariable Long id,
                               @RequestBody
                               @Valid CreateBookRequestDto requestDto) {
         return bookService.update(id, requestDto);
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a book by id (soft delete)")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBook(@PathVariable Long id) {
+    public void deleteBook(@Parameter(description = "Book id", example = "1")
+                               @PathVariable Long id) {
         bookService.deleteById(id);
     }
 }
