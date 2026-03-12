@@ -1,7 +1,6 @@
 package org.example.springbootintro.service.impl;
 
 import jakarta.transaction.Transactional;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootintro.dto.BookDto;
 import org.example.springbootintro.dto.CreateBookRequestDto;
@@ -10,6 +9,8 @@ import org.example.springbootintro.mapper.BookMapper;
 import org.example.springbootintro.model.Book;
 import org.example.springbootintro.repository.BookRepository;
 import org.example.springbootintro.service.BookService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -26,10 +27,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookDto> getAll() {
-        return bookRepository.findAll().stream()
-                .map(bookMapper::toDto)
-                .toList();
+    public Page<BookDto> getAll(Pageable pageable) {
+        return bookRepository.findAll(pageable)
+                .map(bookMapper::toDto);
     }
 
     @Override
