@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: assign-admin-role
+      author: oleksandr
+      changes:
+        - insert:
+            tableName: users_roles
+            columns:
+              - column:
+                  name: user_id
+                  valueComputed: (SELECT id FROM users WHERE email='admin@example.com')
+
+              - column:
+                  name: role_id
+                  valueComputed: (SELECT id FROM roles WHERE name='ROLE_ADMIN')
