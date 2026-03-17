@@ -39,7 +39,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    @Bean
     public org.springframework.security.authentication.event.LoggerListener loggerListener() {
         return new org.springframework.security.authentication.event.LoggerListener();
     }

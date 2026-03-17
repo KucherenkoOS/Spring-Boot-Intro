@@ -14,8 +14,10 @@ import org.example.springbootintro.repository.UserRepository;
 import org.example.springbootintro.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
@@ -34,7 +36,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toModel(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                .orElseThrow(() -> new RegistrationException("Role USER not found"));
+                .orElseThrow(() -> new RegistrationException(RoleName.ROLE_USER + " not found"));
 
         user.setRoles(Set.of(userRole));
         userRepository.save(user);
