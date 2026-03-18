@@ -2,9 +2,12 @@ package org.example.springbootintro.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.springbootintro.dto.UserLoginRequestDto;
+import org.example.springbootintro.dto.UserLoginResponseDto;
 import org.example.springbootintro.dto.UserRegistrationRequestDto;
 import org.example.springbootintro.dto.UserResponseDto;
 import org.example.springbootintro.exception.RegistrationException;
+import org.example.springbootintro.security.AuthenticationService;
 import org.example.springbootintro.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,10 +19,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
     private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/registration")
     public UserResponseDto registerUser(@RequestBody @Valid UserRegistrationRequestDto requestDto)
             throws RegistrationException {
         return userService.register(requestDto);
+    }
+
+    @PostMapping("/login")
+    public UserLoginResponseDto login(
+            @RequestBody @Valid UserLoginRequestDto requestDto) {
+        return authenticationService.authenticate(requestDto);
     }
 }
