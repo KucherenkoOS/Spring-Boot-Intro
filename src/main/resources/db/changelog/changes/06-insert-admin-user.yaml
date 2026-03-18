@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-admin-user
+      author: oleksandr
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: admin@example.com
+
+              - column:
+                  name: password
+                  value: $2a$10$7EqJtq98hPqEX7fNZaFWoO5lN9L1XrC/7EQo1leChX2NDVYqoQZnS
+
+              - column:
+                  name: first_name
+                  value: Admin
+
+              - column:
+                  name: last_name
+                  value: Admin
+
+              - column:
+                  name: shipping_address
+                  value: Admin Address
