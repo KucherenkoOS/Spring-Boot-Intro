@@ -1,5 +1,6 @@
 package org.example.springbootintro.service.impl;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootintro.dto.CategoryDto;
 import org.example.springbootintro.exception.EntityNotFoundException;
@@ -9,7 +10,6 @@ import org.example.springbootintro.repository.CategoryRepository;
 import org.example.springbootintro.service.CategoryService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
