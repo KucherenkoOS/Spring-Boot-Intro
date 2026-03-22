@@ -7,8 +7,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootintro.dto.BookDtoWithoutCategoryIds;
 import org.example.springbootintro.dto.CategoryDto;
-import org.example.springbootintro.mapper.BookMapper;
-import org.example.springbootintro.repository.BookRepository;
+import org.example.springbootintro.service.BookService;
 import org.example.springbootintro.service.CategoryService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,8 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryController {
 
     private final CategoryService categoryService;
-    private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
+    private final BookService bookService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
@@ -71,9 +69,6 @@ public class CategoryController {
     @GetMapping("/{id}/books")
     @Operation(summary = "Get all books from category id")
     public List<BookDtoWithoutCategoryIds> getBooksByCategory(@PathVariable Long id) {
-        return bookRepository.findAllByCategories_Id(id)
-                .stream()
-                .map(bookMapper::toDtoWithoutCategories)
-                .toList();
+        return bookService.findAllByCategoryId(id);
     }
 }
