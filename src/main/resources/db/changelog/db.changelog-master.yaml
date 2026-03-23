@@ -18,3 +18,5 @@ databaseChangeLog:
       file: db/changelog/changes/07-assign-admin-role.yaml
   - include:
       file: db/changelog/changes/08-add-deleted-column-to-users.yaml
+  - include:
+      file: db/changelog/changes/09-add-category-table.yaml

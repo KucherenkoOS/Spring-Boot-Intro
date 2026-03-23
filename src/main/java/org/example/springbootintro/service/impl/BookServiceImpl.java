@@ -1,8 +1,10 @@
 package org.example.springbootintro.service.impl;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.example.springbootintro.dto.BookDto;
+import org.example.springbootintro.dto.BookDtoWithoutCategoryIds;
 import org.example.springbootintro.dto.CreateBookRequestDto;
 import org.example.springbootintro.exception.EntityNotFoundException;
 import org.example.springbootintro.mapper.BookMapper;
@@ -51,6 +53,14 @@ public class BookServiceImpl implements BookService {
         bookMapper.updateBookFromDto(requestDto, book);
 
         return bookMapper.toDto(bookRepository.save(book));
+    }
+
+    @Override
+    public List<BookDtoWithoutCategoryIds> findAllByCategoryId(Long categoryId) {
+        return bookRepository.findAllByCategories_Id(categoryId)
+                .stream()
+                .map(bookMapper::toDtoWithoutCategories)
+                .toList();
     }
 
     @Override
