@@ -8,11 +8,10 @@ import org.example.springbootintro.exception.RegistrationException;
 import org.example.springbootintro.mapper.UserMapper;
 import org.example.springbootintro.model.Role;
 import org.example.springbootintro.model.RoleName;
-import org.example.springbootintro.model.ShoppingCart;
 import org.example.springbootintro.model.User;
 import org.example.springbootintro.repository.RoleRepository;
-import org.example.springbootintro.repository.ShoppingCartRepository;
 import org.example.springbootintro.repository.UserRepository;
+import org.example.springbootintro.service.ShoppingCartService;
 import org.example.springbootintro.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
-    private final ShoppingCartRepository shoppingCartRepository;
+    private final ShoppingCartService shoppingCartService;
 
     @Override
     public UserResponseDto register(UserRegistrationRequestDto request) {
@@ -44,9 +42,7 @@ public class UserServiceImpl implements UserService {
         user.setRoles(Set.of(userRole));
         userRepository.save(user);
 
-        ShoppingCart cart = new ShoppingCart();
-        cart.setUser(user);
-        shoppingCartRepository.save(cart);
+        shoppingCartService.createShoppingCartForUser(user);
 
         return userMapper.toDto(user);
     }

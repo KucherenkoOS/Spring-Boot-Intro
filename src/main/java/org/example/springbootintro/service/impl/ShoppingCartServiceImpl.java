@@ -10,6 +10,7 @@ import org.example.springbootintro.mapper.ShoppingCartMapper;
 import org.example.springbootintro.model.Book;
 import org.example.springbootintro.model.CartItem;
 import org.example.springbootintro.model.ShoppingCart;
+import org.example.springbootintro.model.User;
 import org.example.springbootintro.repository.BookRepository;
 import org.example.springbootintro.repository.CartItemRepository;
 import org.example.springbootintro.repository.ShoppingCartRepository;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ShoppingCartServiceImpl implements ShoppingCartService {
-
     private final ShoppingCartRepository shoppingCartRepository;
     private final CartItemRepository cartItemRepository;
     private final BookRepository bookRepository;
@@ -37,7 +37,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     @Transactional
-    public void addBookByEmail(String email, AddToCartRequestDto dto) {
+    public void addBookToCart(String email, AddToCartRequestDto dto) {
         ShoppingCart cart = shoppingCartRepository.findByUserEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
 
@@ -56,6 +56,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             CartItem item = new CartItem();
             item.setShoppingCart(cart);
             item.setBook(book);
+
             item.setQuantity(dto.getQuantity());
 
             cart.getCartItems().add(item);
@@ -73,6 +74,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 );
 
         item.setQuantity(dto.getQuantity());
+    }
+
+    @Override
+    public void createShoppingCartForUser(User user) {
+        if (shoppingCartRepository.findByUserEmail(user.getEmail()).isPresent()) {
+            return;
+        }
+        ShoppingCart cart = new ShoppingCart();
+        cart.setUser(user);
+        shoppingCartRepository.save(cart);
     }
 
     @Override

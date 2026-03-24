@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Tag(name = "Shopping Cart management", description = "Endpoints for managing user's shopping cart")
 public class ShoppingCartController {
-
     private final ShoppingCartService service;
 
     @PreAuthorize("hasRole('USER')")
@@ -42,7 +41,7 @@ public class ShoppingCartController {
             + "If the book is already in the cart, quantity will be updated.")
     public void add(@RequestBody @Valid AddToCartRequestDto dto,
                     Authentication auth) {
-        service.addBookByEmail(auth.getName(), dto);
+        service.addBookToCart(auth.getName(), dto);
     }
 
     @PreAuthorize("hasRole('USER')")
