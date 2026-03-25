@@ -2,6 +2,7 @@ package org.example.springbootintro.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.springbootintro.validation.FieldMatch;
@@ -17,9 +18,11 @@ public class UserRegistrationRequestDto {
     private String email;
 
     @NotBlank
+    @Size(min = 8, max = 20)
     private String password;
 
     @NotBlank
+    @Size(min = 8, max = 20)
     private String repeatPassword;
 
     @NotBlank

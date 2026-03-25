@@ -43,10 +43,15 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/books/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.POST, "/books/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/books/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/books/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/categories/**").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/categories/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/categories/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/categories/**").hasRole("ADMIN")
+                        .requestMatchers("/cart/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults())

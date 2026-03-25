@@ -11,6 +11,7 @@ import org.example.springbootintro.model.RoleName;
 import org.example.springbootintro.model.User;
 import org.example.springbootintro.repository.RoleRepository;
 import org.example.springbootintro.repository.UserRepository;
+import org.example.springbootintro.service.ShoppingCartService;
 import org.example.springbootintro.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final ShoppingCartService shoppingCartService;
 
     @Override
     public UserResponseDto register(UserRegistrationRequestDto request) {
@@ -40,6 +41,8 @@ public class UserServiceImpl implements UserService {
 
         user.setRoles(Set.of(userRole));
         userRepository.save(user);
+
+        shoppingCartService.createShoppingCartForUser(user);
 
         return userMapper.toDto(user);
     }
