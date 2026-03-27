@@ -9,6 +9,7 @@ import org.example.springbootintro.dto.order.CreateOrderRequestDto;
 import org.example.springbootintro.dto.order.OrderDto;
 import org.example.springbootintro.dto.order.OrderItemDto;
 import org.example.springbootintro.exception.EntityNotFoundException;
+import org.example.springbootintro.exception.OrderProcessingException;
 import org.example.springbootintro.mapper.OrderMapper;
 import org.example.springbootintro.model.CartItem;
 import org.example.springbootintro.model.Order;
@@ -18,6 +19,7 @@ import org.example.springbootintro.model.Status;
 import org.example.springbootintro.repository.OrderRepository;
 import org.example.springbootintro.repository.ShoppingCartRepository;
 import org.example.springbootintro.service.OrderService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
                         + email));
 
         if (cart.getCartItems().isEmpty()) {
-            throw new IllegalStateException("Shopping cart is empty");
+            throw new OrderProcessingException("Shopping cart is empty for user: " + email);
         }
 
         Order order = new Order();
@@ -73,10 +75,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDto> getOrders(String email, Pageable pageable) {
-        return orderRepository.findAllByUserEmail(email, pageable).stream()
-                .map(orderMapper::toDto)
-                .toList();
+    public Page<OrderDto> getOrders(String email, Pageable pageable) {
+        Page<Order> orders = orderRepository.findAllByUserEmail(email, pageable);
+        return orders.map(orderMapper::toDto);
     }
 
     @Override

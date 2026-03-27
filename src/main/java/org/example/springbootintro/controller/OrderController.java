@@ -11,6 +11,7 @@ import org.example.springbootintro.dto.order.OrderItemDto;
 import org.example.springbootintro.dto.order.UpdateOrderStatusDto;
 import org.example.springbootintro.model.User;
 import org.example.springbootintro.service.OrderService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -41,7 +42,7 @@ public class OrderController {
     @GetMapping
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Get all orders by user")
-    public List<OrderDto> getOrders(Authentication authentication, Pageable pageable) {
+    public Page<OrderDto> getOrders(Authentication authentication, Pageable pageable) {
         User user = (User) authentication.getPrincipal();
         return orderService.getOrders(user.getEmail(), pageable);
     }
