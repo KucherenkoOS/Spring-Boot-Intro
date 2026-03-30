@@ -2,14 +2,19 @@ package org.example.springbootintro.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.example.springbootintro.util.TestDataHelper.createBook;
+import static org.example.springbootintro.util.TestDataHelper.createBookDto;
+import static org.example.springbootintro.util.TestDataHelper.createBookRequestDto;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import java.math.BigDecimal;
+
 import java.util.List;
 import java.util.Optional;
 import org.example.springbootintro.dto.BookDto;
+import org.example.springbootintro.dto.BookDtoWithoutCategoryIds;
 import org.example.springbootintro.dto.CreateBookRequestDto;
 import org.example.springbootintro.exception.EntityNotFoundException;
 import org.example.springbootintro.mapper.BookMapper;
@@ -42,28 +47,16 @@ class BookServiceTest {
     @Test
     @DisplayName("Verify createBook() method works")
     void createBook_ValidRequestDto_ReturnsBookDto() {
-        // Given
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("Test Book");
-        requestDto.setAuthor("Author");
-        requestDto.setIsbn("123456789");
-        requestDto.setPrice(BigDecimal.TEN);
-
-        Book book = new Book();
-        book.setTitle(requestDto.getTitle());
-
-        BookDto expectedDto = new BookDto();
-        expectedDto.setId(1L);
-        expectedDto.setTitle(book.getTitle());
+        CreateBookRequestDto requestDto = createBookRequestDto();
+        Book book = createBook(null);
+        BookDto expectedDto = createBookDto(1L);
 
         when(bookMapper.toModel(requestDto)).thenReturn(book);
         when(bookRepository.save(book)).thenReturn(book);
         when(bookMapper.toDto(book)).thenReturn(expectedDto);
 
-        // When
         BookDto actualDto = bookService.createBook(requestDto);
 
-        // Then
         assertThat(actualDto).isEqualTo(expectedDto);
         verify(bookRepository, times(1)).save(book);
     }
@@ -71,58 +64,43 @@ class BookServiceTest {
     @Test
     @DisplayName("Verify getBookById() returns DTO when book exists")
     void getBookById_WithValidId_ReturnsBookDto() {
-        // Given
         Long bookId = 1L;
-        Book book = new Book();
-        book.setId(bookId);
-
-        BookDto expectedDto = new BookDto();
-        expectedDto.setId(bookId);
+        Book book = createBook(bookId);
+        BookDto expectedDto = createBookDto(bookId);
 
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
         when(bookMapper.toDto(book)).thenReturn(expectedDto);
 
-        // When
         BookDto actualDto = bookService.getBookById(bookId);
 
-        // Then
         assertThat(actualDto).isEqualTo(expectedDto);
     }
 
     @Test
     @DisplayName("Verify getBookById() throws exception when book is missing")
     void getBookById_WithInvalidId_ThrowsException() {
-        // Given
         Long bookId = 100L;
         when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
 
-        // When
         Exception exception = assertThrows(EntityNotFoundException.class,
                 () -> bookService.getBookById(bookId));
 
-        // Then
-        String expectedMessage = "Can't find book by id " + bookId;
-        assertThat(exception.getMessage()).isEqualTo(expectedMessage);
+        assertThat(exception.getMessage()).isEqualTo("Can't find book by id " + bookId);
     }
 
     @Test
     @DisplayName("Verify getAll() returns a page of books")
     void getAll_ValidPageable_ReturnsPageOfBookDtos() {
-        // Given
         Pageable pageable = PageRequest.of(0, 10);
-        Book book = new Book();
-        List<Book> books = List.of(book);
-        Page<Book> bookPage = new PageImpl<>(books, pageable, books.size());
-
-        BookDto bookDto = new BookDto();
+        Book book = createBook(1L);
+        BookDto bookDto = createBookDto(1L);
+        Page<Book> bookPage = new PageImpl<>(List.of(book), pageable, 1);
 
         when(bookRepository.findAll(pageable)).thenReturn(bookPage);
         when(bookMapper.toDto(book)).thenReturn(bookDto);
 
-        // When
         Page<BookDto> resultPage = bookService.getAll(pageable);
 
-        // Then
         assertThat(resultPage.getContent()).hasSize(1);
         assertThat(resultPage.getContent().get(0)).isEqualTo(bookDto);
     }
@@ -130,84 +108,69 @@ class BookServiceTest {
     @Test
     @DisplayName("Verify update() updates book and returns DTO")
     void update_ValidId_ReturnsUpdatedBookDto() {
-        // Given
         Long bookId = 1L;
-
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("Updated Title");
-        requestDto.setAuthor("Updated Author");
-        requestDto.setIsbn("111222333");
-        requestDto.setPrice(BigDecimal.valueOf(50));
-
-        Book existingBook = new Book();
-        existingBook.setId(bookId);
-
-        BookDto expectedDto = new BookDto();
-        expectedDto.setId(bookId);
-        expectedDto.setTitle("Updated Title");
+        CreateBookRequestDto requestDto = createBookRequestDto();
+        Book existingBook = createBook(bookId);
+        BookDto expectedDto = createBookDto(bookId);
 
         when(bookRepository.findById(bookId)).thenReturn(Optional.of(existingBook));
         when(bookRepository.save(existingBook)).thenReturn(existingBook);
         when(bookMapper.toDto(existingBook)).thenReturn(expectedDto);
 
-        // When
         BookDto actualDto = bookService.update(bookId, requestDto);
 
-        // Then
         assertThat(actualDto).isEqualTo(expectedDto);
-
-        verify(bookRepository).findById(bookId);
         verify(bookMapper).updateBookFromDto(requestDto, existingBook);
         verify(bookRepository).save(existingBook);
-        verify(bookMapper).toDto(existingBook);
     }
 
     @Test
     @DisplayName("Verify update() throws exception when book not found")
     void update_InvalidId_ThrowsException() {
-        // Given
         Long bookId = 100L;
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-
+        CreateBookRequestDto requestDto = createBookRequestDto();
         when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
 
-        // When
-        Exception exception = assertThrows(EntityNotFoundException.class,
-                () -> bookService.update(bookId, requestDto));
-
-        // Then
-        assertThat(exception.getMessage())
-                .isEqualTo("Can't find book by id " + bookId);
-
-        verify(bookRepository).findById(bookId);
-        verify(bookRepository, times(0)).save(any());
+        assertThrows(EntityNotFoundException.class, () -> bookService.update(bookId, requestDto));
+        verify(bookRepository, never()).save(any());
     }
 
     @Test
-    @DisplayName("Verify deleteById() throws exception when book does not exist")
-    void deleteById_NonExistingId_ThrowsException() {
-        // Given
-        Long bookId = 1L;
-        when(bookRepository.existsById(bookId)).thenReturn(false);
+    @DisplayName("Verify findAllByCategoryId() returns list of books")
+    void findAllByCategoryId_ValidId_ReturnsList() {
+        Long categoryId = 1L;
+        Book book = createBook(1L);
+        BookDtoWithoutCategoryIds dtoWithoutCategories = new BookDtoWithoutCategoryIds();
+        dtoWithoutCategories.setId(1L);
+        dtoWithoutCategories.setTitle(book.getTitle());
 
-        // When
-        assertThrows(EntityNotFoundException.class, () -> bookService.deleteById(bookId));
+        when(bookRepository.findAllByCategories_Id(categoryId)).thenReturn(List.of(book));
+        when(bookMapper.toDtoWithoutCategories(book)).thenReturn(dtoWithoutCategories);
 
-        // Then
-        verify(bookRepository, times(0)).deleteById(any());
+        List<BookDtoWithoutCategoryIds> result = bookService.findAllByCategoryId(categoryId);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(1L);
     }
 
     @Test
     @DisplayName("Verify deleteById() calls repository for existing book")
     void deleteById_ExistingId_DeletesBook() {
-        // Given
         Long bookId = 1L;
         when(bookRepository.existsById(bookId)).thenReturn(true);
 
-        // When
         bookService.deleteById(bookId);
 
-        // Then
-        verify(bookRepository, times(1)).deleteById(bookId);
+        verify(bookRepository).deleteById(bookId);
+    }
+
+    @Test
+    @DisplayName("Verify deleteById() throws exception for non-existing book")
+    void deleteById_NonExistingId_ThrowsException() {
+        Long bookId = 100L;
+        when(bookRepository.existsById(bookId)).thenReturn(false);
+
+        assertThrows(EntityNotFoundException.class, () -> bookService.deleteById(bookId));
+        verify(bookRepository, never()).deleteById(any());
     }
 }

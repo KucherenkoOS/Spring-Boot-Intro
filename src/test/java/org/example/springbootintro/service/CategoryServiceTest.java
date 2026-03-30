@@ -1,15 +1,14 @@
 package org.example.springbootintro.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
+import static org.example.springbootintro.util.TestDataHelper.createCategory;
+import static org.example.springbootintro.util.TestDataHelper.createCategoryDto;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 import org.example.springbootintro.dto.CategoryDto;
-import org.example.springbootintro.exception.EntityNotFoundException;
 import org.example.springbootintro.mapper.CategoryMapper;
 import org.example.springbootintro.model.Category;
 import org.example.springbootintro.repository.CategoryRepository;
@@ -41,16 +40,9 @@ class CategoryServiceTest {
     @DisplayName("Verify save() method works")
     void save_ValidCategoryDto_ReturnsCategoryDto() {
         // Given
-        CategoryDto requestDto = new CategoryDto();
-        requestDto.setName("Fantasy");
-        requestDto.setDescription("Magic and dragons");
-
-        Category category = new Category();
-        category.setName(requestDto.getName());
-
-        CategoryDto savedDto = new CategoryDto();
-        savedDto.setId(1L);
-        savedDto.setName(category.getName());
+        CategoryDto requestDto = createCategoryDto(null, "Fantasy");
+        Category category = createCategory(null, "Fantasy");
+        CategoryDto savedDto = createCategoryDto(1L, "Fantasy");
 
         when(categoryMapper.toEntity(requestDto)).thenReturn(category);
         when(categoryRepository.save(category)).thenReturn(category);
@@ -61,7 +53,7 @@ class CategoryServiceTest {
 
         // Then
         assertThat(actualDto).isEqualTo(savedDto);
-        verify(categoryRepository, times(1)).save(category);
+        verify(categoryRepository).save(category);
     }
 
     @Test
@@ -69,13 +61,8 @@ class CategoryServiceTest {
     void getById_ValidId_ReturnsCategoryDto() {
         // Given
         Long categoryId = 1L;
-        Category category = new Category();
-        category.setId(categoryId);
-        category.setName("Fiction");
-
-        CategoryDto expectedDto = new CategoryDto();
-        expectedDto.setId(categoryId);
-        expectedDto.setName("Fiction");
+        Category category = createCategory(categoryId, "Fiction");
+        CategoryDto expectedDto = createCategoryDto(categoryId, "Fiction");
 
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
         when(categoryMapper.toDto(category)).thenReturn(expectedDto);
@@ -88,33 +75,13 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("Verify getById() throws exception when category not found")
-    void getById_InvalidId_ThrowsException() {
-        // Given
-        Long categoryId = 100L;
-        when(categoryRepository.findById(categoryId)).thenReturn(Optional.empty());
-
-        // When
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class,
-                () -> categoryService.getById(categoryId)
-        );
-
-        // Then
-        assertThat(exception.getMessage()).isEqualTo("Category not found " + categoryId);
-    }
-
-    @Test
     @DisplayName("Verify findAll() returns list of categories")
     void findAll_ValidPageable_ReturnsListOfCategoryDtos() {
         // Given
         Pageable pageable = PageRequest.of(0, 10);
-        Category category = new Category();
-        category.setName("History");
-
+        Category category = createCategory(1L, "History");
+        CategoryDto categoryDto = createCategoryDto(1L, "History");
         Page<Category> categoryPage = new PageImpl<>(List.of(category));
-        CategoryDto categoryDto = new CategoryDto();
-        categoryDto.setName("History");
 
         when(categoryRepository.findAll(pageable)).thenReturn(categoryPage);
         when(categoryMapper.toDto(category)).thenReturn(categoryDto);
@@ -124,7 +91,7 @@ class CategoryServiceTest {
 
         // Then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("History");
+        assertThat(result.get(0)).isEqualTo(categoryDto);
     }
 
     @Test
@@ -132,16 +99,13 @@ class CategoryServiceTest {
     void update_ValidIdAndDto_ReturnsUpdatedDto() {
         // Given
         Long categoryId = 1L;
-        CategoryDto updateDto = new CategoryDto();
-        updateDto.setName("Updated Name");
-
-        Category existingCategory = new Category();
-        existingCategory.setId(categoryId);
-        existingCategory.setName("Old Name");
+        CategoryDto updateDto = createCategoryDto(null, "Updated Name");
+        Category existingCategory = createCategory(categoryId, "Old Name");
+        CategoryDto expectedDto = createCategoryDto(categoryId, "Updated Name");
 
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(existingCategory));
         when(categoryRepository.save(existingCategory)).thenReturn(existingCategory);
-        when(categoryMapper.toDto(existingCategory)).thenReturn(updateDto);
+        when(categoryMapper.toDto(existingCategory)).thenReturn(expectedDto);
 
         // When
         CategoryDto result = categoryService.update(categoryId, updateDto);

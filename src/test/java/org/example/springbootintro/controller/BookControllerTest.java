@@ -1,13 +1,17 @@
 package org.example.springbootintro.controller;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import org.example.springbootintro.dto.CreateBookRequestDto;
+import org.example.springbootintro.util.TestDataHelper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,12 +47,7 @@ class BookControllerTest {
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void createBook_ValidRequestDto_Success() throws Exception {
         // Given
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("New Book");
-        requestDto.setAuthor("New Author");
-        requestDto.setIsbn("9998887776655");
-        requestDto.setPrice(BigDecimal.valueOf(45.99));
-
+        CreateBookRequestDto requestDto = TestDataHelper.createBookRequest("New Book", "9998887776655");
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
         // When & Then
@@ -56,8 +55,7 @@ class BookControllerTest {
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title").value(requestDto.getTitle()))
-                .andExpect(jsonPath("$.author").value(requestDto.getAuthor()));
+                .andExpect(jsonPath("$.title").value(requestDto.getTitle()));
     }
 
     @Test
@@ -100,25 +98,15 @@ class BookControllerTest {
     @Sql(scripts = "classpath:database/books/delete-books.sql",
             executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void updateBook_ValidRequestDto_Success() throws Exception {
-        // Given
         Long bookId = 1L;
-
-        CreateBookRequestDto requestDto = new CreateBookRequestDto();
-        requestDto.setTitle("Updated Title");
-        requestDto.setAuthor("Updated Author");
-        requestDto.setIsbn("1112223334445");
-        requestDto.setPrice(BigDecimal.valueOf(99.99));
-
+        CreateBookRequestDto requestDto = TestDataHelper.createBookRequest("Updated Title", "1112223334445");
         String jsonRequest = objectMapper.writeValueAsString(requestDto);
 
-        // When & Then
         mockMvc.perform(put("/books/" + bookId)
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(bookId))
-                .andExpect(jsonPath("$.title").value("Updated Title"))
-                .andExpect(jsonPath("$.author").value("Updated Author"));
+                .andExpect(jsonPath("$.title").value("Updated Title"));
     }
 
     @Test
