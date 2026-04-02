@@ -10,15 +10,17 @@ The main goal of this project is to demonstrate backend development skills using
 
 ## 🛠️ Technologies
 - Java 17
-- Spring Boot
-- Spring Security
-- Spring Data JPA
-- Hibernate
-- Liquibase
-- MySQL
-- Docker & Docker Compose
-- Swagger
-- JUnit & Mockito
+- Spring Boot 3.4.2
+- Spring Security 6.x
+- Spring Data JPA 3.x
+- Hibernate 6.x
+- Liquibase 4.29.2
+- MySQL 8.0
+- MapStruct 1.5.5
+- JJWT 0.11.5
+- Docker 24.x & Docker Compose 2.x
+- Springdoc OpenAPI (Swagger) 2.8.5
+- JUnit & Mockito (via Spring Boot Test)
 
 ---
 
@@ -59,6 +61,22 @@ The main goal of this project is to demonstrate backend development skills using
 - Role-based access control
 - Protected endpoints for ADMIN operations
 
+## 🔐 Environment Variables
+
+The project uses environment variables for configuration.
+
+Create a `.env` file in the root directory:
+
+```env
+MYSQLDB_ROOT_PASSWORD=
+MYSQLDB_DATABASE=book_store_db
+MYSQLDB_USER=
+MYSQLDB_PASSWORD=
+MYSQLDB_LOCAL_PORT=3307
+MYSQLDB_DOCKER_PORT=3306
+SPRING_LOCAL_PORT=8080
+SPRING_DOCKER_PORT=8080
+```
 ---
 
 ## ⚠️ Error Handling
@@ -93,12 +111,26 @@ Validation errors (e.g. invalid request body) are handled automatically.
 ### 1. Clone repo
 ```bash
 git clone https://github.com/KucherenkoOS/Spring-Boot-Intro.git
-cd project-name
+cd Spring-Boot-Intro
 ```
 ### 2. Run with Docker
+Make sure you have Docker and Docker Compose installed.
+
+Build and start containers:
+
 ```bash
 docker-compose up --build
 ```
+This will start:
+
+- MySQL database
+- Spring Boot application
+
+To stop:
+```bash
+docker-compose down
+```
+
 ### 3. Application will be available at:
 http://localhost:8080
 
@@ -191,7 +223,7 @@ DELETE /cart/{cartItemId}
 
 Most endpoints require JWT token:
 
-Authorization: Bearer
+Authorization: Bearer <your_token>
 
 ---
 
@@ -213,6 +245,12 @@ Authorization: Bearer
 | /cart/{id}     | PATCH  | ADMIN  |
 
 ---
+## 📄 API Documentation
+
+- Swagger UI:
+http://localhost:8080/swagger-ui/index.html
+- Postman collection available in the repository
+---
 ## 🧪 Testing
 
 The project includes:
@@ -225,12 +263,26 @@ Run tests:
 ```bash
 mvn test
 ```
+## 📬 Postman Collection
 
-### 🗄️ Database
+You can test API endpoints using Postman.
+
+1. Import collection from:
+   `postman/BookStoreAPI.postman_collection.json`
+
+2. Run login request to obtain JWT token
+
+3. Token will be automatically saved and used for authorized requests
+
+## 🗄️ Database
 - MySQL is used as the primary database
 - Hibernate (JPA) is used for ORM
 - Database schema is managed via Liquibase changeSets
 - All schema changes are version-controlled and applied automatically on application startup
+
+## 🧩 Database Diagram
+
+![Database Diagram](docs/book_store_db.png)
 
 ## ⚡ Challenges
 - Designing clean architecture (Controller → Service → Repository)
