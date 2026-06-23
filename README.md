@@ -1,4 +1,4 @@
-# 📚 Book Store API
+# 📚 BookVerse Store API
 
 ## 🚀 Introduction
 This project is a RESTful API for managing a book store.  
